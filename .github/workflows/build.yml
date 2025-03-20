@@ -23,7 +23,10 @@ jobs:
 
       - name: 📦 Compilar APK
         run: |
-          cd $GITHUB_WORKSPACE
           buildozer -v android debug
 
-      - name: 📤 Subir APK a Arti
+      - name: 📤 Subir APK a Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: UrbanGo-APK
+          path: bin/*.apk
