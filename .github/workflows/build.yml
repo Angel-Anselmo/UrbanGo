@@ -21,28 +21,34 @@ jobs:
 
       - name: 🔹 Instalar Dependencias del Sistema  
         run: |  
-          sudo apt update && sudo apt install -y zip unzip openjdk-17-jdk  
+          sudo apt update  
+          sudo apt install -y zip unzip openjdk-17-jdk  
           pip install --upgrade pip setuptools wheel  
 
       - name: ✅ Instalar Buildozer y Dependencias  
         run: |  
-          pip install buildozer  
-          sudo apt install -y liblz4-tool  
+          pip install --user buildozer  
+          echo "$HOME/.local/bin" >> $GITHUB_PATH  
 
-      - name: ✅ Aceptar Licencias del Android SDK  
+      - name: ✅ Instalar Android SDK Manualmente  
         run: |  
-          export ANDROID_SDK_ROOT=$HOME/.buildozer/android/platform/android-sdk  
-          export PATH=$ANDROID_SDK_ROOT/cmdline-tools/latest/bin:$ANDROID_SDK_ROOT/platform-tools:$PATH  
-          yes | sdkmanager --licenses || true  
-          sdkmanager "platform-tools" "platforms;android-30" "build-tools;30.0.3"  
+          mkdir -p $HOME/.buildozer/android/platform  
+          cd $HOME/.buildozer/android/platform  
+          wget https://dl.google.com/android/repository/commandlinetools-linux-10406996_latest.zip  
+          unzip commandlinetools-linux-10406996_latest.zip  
+          mkdir -p android-sdk/cmdline-tools/latest  
+          mv cmdline-tools/* android-sdk/cmdline-tools/latest/  
+          export ANDROID_HOME=$HOME/.buildozer/android/platform/android-sdk  
+          export PATH=$ANDROID_HOME/cmdline-tools/latest/bin:$ANDROID_HOME/platform-tools:$PATH  
+          yes | sdkmanager --licenses  
+          sdkmanager --install "platform-tools" "platforms;android-30" "build-tools;30.0.3"  
 
       - name: 🚀 Compilar APK con Buildozer  
         run: |  
           buildozer -v android debug  
 
       - name: 📦 Guardar APK como Artefacto  
-        uses: actions/upload-artifact@v4 
+        uses: actions/upload-artifact@v3  
         with:  
           name: UrbanGo-APK  
           path: bin/*.apk  
-
