@@ -12,7 +12,7 @@ jobs:
 
     steps:
       - name: 🛎️ Clonar el repositorio
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: 🏗️ Instalar dependencias
         run: |
@@ -21,19 +21,9 @@ jobs:
           pip install --upgrade pip
           pip install buildozer cython==0.29.33
 
-      - name: 📝 Configurar Buildozer
-        run: |
-          cd $GITHUB_WORKSPACE
-          buildozer init
-          cat buildozer.spec  # Verificar la configuración
-
       - name: 📦 Compilar APK
         run: |
           cd $GITHUB_WORKSPACE
           buildozer -v android debug
 
-      - name: 📤 Subir APK a Artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: UrbanGo-APK
-          path: bin/*.apk
+      - name: 📤 Subir APK a Arti
