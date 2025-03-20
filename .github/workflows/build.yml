@@ -27,7 +27,7 @@ jobs:
 
       - name: ✅ Instalar Buildozer y Dependencias  
         run: |  
-          pip install --user buildozer  
+          pip install --user buildozer Cython  
           echo "$HOME/.local/bin" >> $GITHUB_PATH  
 
       - name: ✅ Instalar Android SDK Manualmente  
@@ -48,7 +48,7 @@ jobs:
           buildozer -v android debug  
 
       - name: 📦 Guardar APK como Artefacto  
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v3  
         with:  
           name: UrbanGo-APK  
           path: bin/*.apk  
