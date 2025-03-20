@@ -1,0 +1,62 @@
+#:import hex kivy.utils.get_hex_from_color
+<UrbanGoApp>:
+    BoxLayout:
+        orientacion: 'vertical'
+
+        #Barra de herramientas superior
+        ActionBar::
+            pos-hint: {'top':1}
+            ActionView:
+                ActionPrevious:
+                    title: 'UrbanGo'
+                ActionButton:
+                    icon: 'assets/icons/meni.png'
+                    on-press: root.open_menu()
+
+        #Contenedor principal (pantallas)
+        Screen Manager:
+            id: screen-manager
+            Screen:
+                name: 'inicio'
+                BoxLayout:
+                    Label:
+                        text: 'Pantalla de Inicio'
+
+#Añadir WebView
+<InicioScreen>:
+    BoxLayout:
+        orientacion: 'vertical'
+        WebView:
+            id: mapa_webview
+            url: 'https://api.mapbox.com/styles/v1/mapbox/streets-v12.html?access_token=pk.eyJ1IjoiZmVyaGVybmFuZGV6MjMwMTA1IiwiYSI6ImNtOGdtcmJ3cTBuZmwyaW92MWljNWk2MHkifQ.QoTuf7pLAFzd8FYMbU_8cQ'
+
+#Actualizacion (Rutas)
+<RutasScreen>:
+    BoxLayout:
+        orientacion: 'vertical'
+        RecycleView:
+            data: [{'text': ruta[1]} for ruta in app.rutas]
+            viewclass: 'Button'
+            RecycleBoxLayout:
+                default_size: None, db(56)
+                default_size_hint: 1, None
+                size_hint_y: Noneheight: self.minimum_height
+                orientacion: 'vertical'
+
+#Menu de opciones
+<MenuLateral@BoxLayout>:
+    orientacion: 'vertical'
+    size_hint_x: 0.3
+    canvas.before:
+        Color:
+            rgba: COLOR_PRIMARY
+        Rectangle:
+            pos: self.pos
+            size: self.size
+
+    Button:
+        text: 'Inicio'
+        on_press: app.root.current = 'inicio'
+    Button:
+        text: 'Rutas'
+        on_press: app.root.current = 'rutas'
