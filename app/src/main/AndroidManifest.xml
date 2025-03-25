@@ -23,8 +23,8 @@
 
         <!-- Configuración de Google Maps -->
         <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="TU_API_KEY_DE_GOOGLE_MAPS" />
+            android:name="com.google.android.maps.v2.API_KEY"
+            android:value="@string/google_maps_api_key" />
 
         <activity
             android:name=".MainActivity"

@@ -62,7 +62,13 @@ fun MainScreen() {
             }
         }
     ) { innerPadding ->
-        Greeting(name = items[selectedItem], modifier = Modifier.padding(innerPadding))
+        when (selectedItem) {
+            0 -> Greeting(name = "Inicio", modifier = Modifier.padding(innerPadding))
+            1 -> Greeting(name = "Tarjeta", modifier = Modifier.padding(innerPadding))
+            2 -> MapScreen() // Muestra Google Maps en la pestaña "Rutas"
+            3 -> Greeting(name = "Trámites", modifier = Modifier.padding(innerPadding))
+            4 -> Greeting(name = "Reportes", modifier = Modifier.padding(innerPadding))
+        }
     }
 }
 
