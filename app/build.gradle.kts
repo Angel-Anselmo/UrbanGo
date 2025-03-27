@@ -63,16 +63,16 @@ dependencies {
     implementation("com.squareup.retrofit2:converter-gson:2.9.0")
 
     // Google Maps y Ubicación
-    implementation("com.google.android.gms:play-services-maps:18.1.0")
+    implementation("com.google.android.gms:play-services-maps:18.2.0")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation("com.google.maps.android:maps-compose:2.14.0")
-
+    implementation("com.google.maps.android:android-maps-utils:3.0.0")
 
     // Glide (Carga de imágenes)
     implementation("com.github.bumptech.glide:glide:4.15.1")
 
     // Corrutinas (Operaciones asíncronas)
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")
 
     // Room (Base de datos local)
     implementation("androidx.room:room-ktx:2.5.2")
