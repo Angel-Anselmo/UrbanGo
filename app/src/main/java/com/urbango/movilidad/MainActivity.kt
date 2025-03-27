@@ -1,5 +1,6 @@
 package com.urbango.movilidad
 
+import com.urbango.movilidad.ui.MapScreen
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
