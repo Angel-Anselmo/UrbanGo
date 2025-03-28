@@ -199,7 +199,7 @@ fun MapScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
-                    .padding(bottom = 70.dp), // Margen adicional en la parte inferior
+                    .padding(bottom = 70.dp), // Margen adicional en la parte inferior para el mapa
                 cameraPositionState = cameraPositionState,
                 properties = MapProperties(
                     isMyLocationEnabled = hasLocationPermission,
