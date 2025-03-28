@@ -8,11 +8,11 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
-import androidx.compose.foundation.isSystemInDarkTheme // Importación añadida para isSystemInDarkTheme
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Directions
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -105,7 +105,7 @@ fun MapScreen(
 
     // UI del mapa
     Scaffold(
-        modifier = modifier.fillMaxSize(),
+        modifier = modifier, // Usa el modifier pasado desde MainScreen
         topBar = {
             // Barra superior con el nombre de la ruta
             TopAppBar(
@@ -114,7 +114,9 @@ fun MapScreen(
                         text = selectedRoute,
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
-                        color = if (isDarkTheme) Color.White else Color.Black
+                        color = if (isDarkTheme) Color.White else Color.Black,
+                        modifier = Modifier.fillMaxWidth(),
+                        textAlign = androidx.compose.ui.text.style.TextAlign.Center
                     )
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
@@ -126,36 +128,27 @@ fun MapScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding) // Ajusta el mapa para que no se superponga con la barra superior e inferior
+                .padding(innerPadding) // Aplica el padding del Scaffold externo (MainScreen)
         ) {
             // Submenú
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        if (isDarkTheme) Color.DarkGray.copy(alpha = 0.9f) else Color.White.copy(alpha = 0.9f),
-                        shape = RoundedCornerShape(bottomEnd = 16.dp, bottomStart = 16.dp)
+                        if (isDarkTheme) Color(0xFF424242) else Color(0xFFE3F2FD),
+                        shape = RoundedCornerShape(0.dp)
                     )
-                    .padding(16.dp)
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
             ) {
-                // Título
-                Text(
-                    text = "Selecciona tu ruta",
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = if (isDarkTheme) Color.White else Color.Black,
-                    modifier = Modifier.padding(bottom = 8.dp)
-                )
-
-                // Botón del submenú con ícono
+                // Botón del submenú con ícono de flecha hacia abajo
                 Button(
                     onClick = { expanded = true },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(48.dp),
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.primary,
-                        contentColor = Color.White
+                        containerColor = if (isDarkTheme) Color(0xFF424242) else Color(0xFFE3F2FD),
+                        contentColor = if (isDarkTheme) Color.White else Color.Black
                     ),
                     shape = RoundedCornerShape(8.dp)
                 ) {
@@ -164,11 +157,15 @@ fun MapScreen(
                         horizontalArrangement = Arrangement.SpaceBetween,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        Text(text = selectedRoute)
+                        Text(
+                            text = selectedRoute,
+                            fontSize = 16.sp,
+                            color = if (isDarkTheme) Color.White else Color.Black
+                        )
                         Icon(
-                            imageVector = Icons.Default.Directions,
+                            imageVector = Icons.Default.ArrowDropDown,
                             contentDescription = "Seleccionar ruta",
-                            tint = Color.White
+                            tint = if (isDarkTheme) Color.White else Color.Black
                         )
                     }
                 }
@@ -179,7 +176,7 @@ fun MapScreen(
                     onDismissRequest = { expanded = false },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(if (isDarkTheme) Color.DarkGray else Color.White)
+                        .background(if (isDarkTheme) Color(0xFF424242) else Color.White)
                 ) {
                     routes.forEach { route ->
                         DropdownMenuItem(
@@ -200,7 +197,9 @@ fun MapScreen(
             // Mapa con polilíneas, flechas y marcadores
             GoogleMap(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .padding(bottom = 70.dp), // Margen adicional en la parte inferior
                 cameraPositionState = cameraPositionState,
                 properties = MapProperties(
                     isMyLocationEnabled = hasLocationPermission,
@@ -322,34 +321,44 @@ private fun fetchRoute(
 
     // Usamos coordenadas específicas en lugar de nombres para mayor precisión
     val (origin, destination) = when (selectedRoute) {
-        "Ruta 1" -> "21.8818,-102.2916" to "21.9167,-102.2916" // Centro a Norte
-        "Ruta 2" -> "21.8497,-102.2916" to "21.8818,-102.2500" // Sur a Este
-        else -> "21.8818,-102.2916" to "21.9167,-102.2916" // Personalizada (mismo que Ruta 1 por ahora)
+        "Ruta 1" -> "21.8818,-102.2946" to "21.9135,-102.3155" // Plaza de la Patria a Universidad Autónoma de Aguascalientes
+        "Ruta 2" -> "21.8791,-102.2977" to "21.8845,-102.2600" // Jardín de San Marcos a Centro Comercial Altaria
+        else -> "21.8818,-102.2946" to "21.9135,-102.3155" // Personalizada (mismo que Ruta 1 por ahora)
     }
 
     CoroutineScope(Dispatchers.IO).launch {
         try {
             // Solicitud para la ruta de ida (origin -> destination)
-            val outwardResponse = service.getDirections(origin, destination, "TU_CLAVE_API_AQUÍ")
+            val outwardResponse = service.getDirections(origin, destination, "AIzaSyB0Mjjo0RlbKLWrDEM27_CRfWsCMYg67KI")
             var outwardPoints = emptyList<LatLng>()
             if (outwardResponse.isSuccessful) {
-                val routes = outwardResponse.body()?.routes
-                if (routes?.isNotEmpty() == true) {
-                    val route = routes.first()
-                    val polyline = route.overviewPolyline
-                    if (polyline?.points?.isNotEmpty() == true) {
-                        outwardPoints = PolyUtil.decode(polyline.points)
+                val responseBody = outwardResponse.body()
+                if (responseBody != null) {
+                    Log.d("DirectionsAPI", "Outward response status: ${responseBody.status}")
+                    Log.d("DirectionsAPI", "Outward response: $responseBody")
+                    val routes = responseBody.routes
+                    if (routes?.isNotEmpty() == true) {
+                        val route = routes.first()
+                        val polyline = route.overviewPolyline
+                        if (polyline?.points?.isNotEmpty() == true) {
+                            outwardPoints = PolyUtil.decode(polyline.points)
+                        } else {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Toast.makeText(context, "No se encontró una polilínea para la ruta de ida", Toast.LENGTH_SHORT).show()
+                            }
+                            Log.e("DirectionsAPI", "overview_polyline is null or points are empty (outward). Route: $route")
+                        }
                     } else {
                         CoroutineScope(Dispatchers.Main).launch {
-                            Toast.makeText(context, "No se encontró una polilínea para la ruta de ida", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "No se encontraron rutas de ida. Status: ${responseBody.status}", Toast.LENGTH_SHORT).show()
                         }
-                        Log.e("DirectionsAPI", "overview_polyline is null or points are empty (outward). Route: $route")
+                        Log.e("DirectionsAPI", "No routes found in outward response: $responseBody")
                     }
                 } else {
                     CoroutineScope(Dispatchers.Main).launch {
-                        Toast.makeText(context, "No se encontraron rutas de ida", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Respuesta de la API de ida vacía", Toast.LENGTH_SHORT).show()
                     }
-                    Log.e("DirectionsAPI", "No routes found in outward response: ${outwardResponse.body()}")
+                    Log.e("DirectionsAPI", "Outward response body is null")
                 }
             } else {
                 CoroutineScope(Dispatchers.Main).launch {
@@ -359,26 +368,36 @@ private fun fetchRoute(
             }
 
             // Solicitud para la ruta de regreso (destination -> origin)
-            val returnResponse = service.getDirections(destination, origin, "TU_CLAVE_API_AQUÍ")
+            val returnResponse = service.getDirections(destination, origin, "AIzaSyB0Mjjo0RlbKLWrDEM27_CRfWsCMYg67KI")
             var returnPoints = emptyList<LatLng>()
             if (returnResponse.isSuccessful) {
-                val routes = returnResponse.body()?.routes
-                if (routes?.isNotEmpty() == true) {
-                    val route = routes.first()
-                    val polyline = route.overviewPolyline
-                    if (polyline?.points?.isNotEmpty() == true) {
-                        returnPoints = PolyUtil.decode(polyline.points)
+                val responseBody = returnResponse.body()
+                if (responseBody != null) {
+                    Log.d("DirectionsAPI", "Return response status: ${responseBody.status}")
+                    Log.d("DirectionsAPI", "Return response: $responseBody")
+                    val routes = responseBody.routes
+                    if (routes?.isNotEmpty() == true) {
+                        val route = routes.first()
+                        val polyline = route.overviewPolyline
+                        if (polyline?.points?.isNotEmpty() == true) {
+                            returnPoints = PolyUtil.decode(polyline.points)
+                        } else {
+                            CoroutineScope(Dispatchers.Main).launch {
+                                Toast.makeText(context, "No se encontró una polilínea para la ruta de regreso", Toast.LENGTH_SHORT).show()
+                            }
+                            Log.e("DirectionsAPI", "overview_polyline is null or points are empty (return). Route: $route")
+                        }
                     } else {
                         CoroutineScope(Dispatchers.Main).launch {
-                            Toast.makeText(context, "No se encontró una polilínea para la ruta de regreso", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "No se encontraron rutas de regreso. Status: ${responseBody.status}", Toast.LENGTH_SHORT).show()
                         }
-                        Log.e("DirectionsAPI", "overview_polyline is null or points are empty (return). Route: $route")
+                        Log.e("DirectionsAPI", "No routes found in return response: $responseBody")
                     }
                 } else {
                     CoroutineScope(Dispatchers.Main).launch {
-                        Toast.makeText(context, "No se encontraron rutas de regreso", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "Respuesta de la API de regreso vacía", Toast.LENGTH_SHORT).show()
                     }
-                    Log.e("DirectionsAPI", "No routes found in return response: ${returnResponse.body()}")
+                    Log.e("DirectionsAPI", "Return response body is null")
                 }
             } else {
                 CoroutineScope(Dispatchers.Main).launch {
