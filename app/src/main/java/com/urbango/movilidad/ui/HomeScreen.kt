@@ -10,12 +10,14 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.content.ContextCompat
+import androidx.core.graphics.createBitmap // Importación para KTX
 import com.google.android.gms.maps.model.BitmapDescriptor
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
@@ -24,11 +26,12 @@ import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.*
 import com.urbango.movilidad.R
 
-// Función auxiliar para convertir un Vector Drawable a Bitmap
-fun vectorToBitmap(context: Context, vectorResId: Int): BitmapDescriptor {
+// Función auxiliar para convertir un Vector Drawable a Bitmap, con soporte para tintado
+fun vectorToBitmap(context: Context, vectorResId: Int, tintColor: Int? = null): BitmapDescriptor {
     val vectorDrawable = ContextCompat.getDrawable(context, vectorResId)
+    tintColor?.let { vectorDrawable?.setTint(it) } // Aplicar el color de tinte si se proporciona
     vectorDrawable?.setBounds(0, 0, vectorDrawable.intrinsicWidth, vectorDrawable.intrinsicHeight)
-    val bitmap = Bitmap.createBitmap(
+    val bitmap = createBitmap(
         vectorDrawable?.intrinsicWidth ?: 24,
         vectorDrawable?.intrinsicHeight ?: 24,
         Bitmap.Config.ARGB_8888
@@ -103,6 +106,9 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+            // Descripción
+
+
             // Mapa de Google
             GoogleMap(
                 modifier = Modifier
@@ -122,8 +128,8 @@ fun HomeScreen(
                         state = MarkerState(position = location),
                         title = "Oxxo - Punto de Recarga",
                         snippet = "Recarga tu tarjeta 'YoVoy' aquí",
-                        icon = vectorToBitmap(context, R.drawable.ic_credit_card) // Ícono vectorial personalizado
-                    )
+                        icon = vectorToBitmap(context, R.drawable.ic_credit_card, Color.Red.toArgb())
+                        )
                 }
             }
         }
